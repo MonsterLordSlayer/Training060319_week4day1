@@ -10,8 +10,9 @@ import android.util.Log;
 import com.example.week4day1.github.GithubRepo;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
-public class ShowRepoActivity extends AppCompatActivity {
+public class ShowRepoActivity extends AppCompatActivity implements ShowRepoAcitivityContract {
     protected ArrayList<GithubRepo> newrepos;
     RecyclerView rvRepos;
     @Override
@@ -20,16 +21,19 @@ public class ShowRepoActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_show_repo);
         rvRepos=findViewById(R.id.rvRepos);
-        OkHttpExample okHttpExample=new OkHttpExample();
+        ShowRepoActivityPresenter showRepoActivityPresenter=new ShowRepoActivityPresenter(this);
+        showRepoActivityPresenter.getAllRepos(this);
 
 
-        newrepos=okHttpExample.getRepos();
-        Log.d("burrrrrrrrffff", "onCreate: "+newrepos.get(0).getFullName());
-        RecyclerView.LayoutManager layoutManager=new LinearLayoutManager(this);
+
+    }
+
+    @Override
+    public void populateAllRepo(ArrayList<GithubRepo> repos) {
+
+        RecyclerView.LayoutManager layoutManager=new LinearLayoutManager(rvRepos.getContext());
         rvRepos.setLayoutManager(layoutManager);
-        ReposViewAdapter reposViewAdapter=new ReposViewAdapter(newrepos);
+        ReposViewAdapter reposViewAdapter=new ReposViewAdapter(repos);
         rvRepos.setAdapter(reposViewAdapter);
-
-
     }
 }

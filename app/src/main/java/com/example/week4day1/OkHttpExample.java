@@ -1,6 +1,12 @@
 package com.example.week4day1;
 
+import android.app.Activity;
+import android.content.Context;
 import android.util.Log;
+import android.widget.TextView;
+
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.week4day1.github.GithubRepo;
 import com.example.week4day1.github.GithubUser;
@@ -30,7 +36,10 @@ import static com.example.week4day1.MainActivity.field4;
 
 public class OkHttpExample {
     ArrayList<GithubRepo> repos;
-    public boolean getUser(){
+    ArrayList<String> returnStrings=new ArrayList<>();
+    TextView tv;
+    public ArrayList<String> getUser(Context context,MainActivityContract mainActivityContract){
+
 
         HttpLoggingInterceptor loggingInterceptor=new HttpLoggingInterceptor();
         loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
@@ -52,6 +61,23 @@ public class OkHttpExample {
                 field2=githubUser.getId().toString();
                 field3=githubUser.getHtmlUrl();
                 field4=githubUser.getCreatedAt();
+                returnStrings.add(field1);
+                returnStrings.add(field2);
+                returnStrings.add(field3);
+                returnStrings.add(field4);
+                ((MainActivity)context).runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mainActivityContract.populateAllUser(field1,field2,field3,field4);
+
+                    }
+                });
+
+
+
+
+
+
 
 
 
@@ -59,10 +85,10 @@ public class OkHttpExample {
             }
 
         });
-        return returnClient.newCall(request).isExecuted();
+        return returnStrings;
 
     }
-    public ArrayList<GithubRepo> getRepos(){
+    public ArrayList<GithubRepo> getRepos(Context context, ShowRepoAcitivityContract showRepoAcitivityContract){
         OkHttpClient returnClient =new OkHttpClient.Builder().build();
 
         Request request=new Request.Builder().url("https://api.github.com/users/MonsterLordSlayer/repos").build();
@@ -74,7 +100,17 @@ public class OkHttpExample {
                     Gson gson=new Gson();
                     Response response=returnClient.newCall(request).execute();
                     GithubRepo[] respondrepos=gson.fromJson(response.body().string(),GithubRepo[].class);
-                    repos=new ArrayList<GithubRepo>(Arrays.asList(respondrepos));
+                    ((ShowRepoActivity)context).runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+
+                            repos=new ArrayList<GithubRepo>(Arrays.asList(respondrepos));
+                            showRepoAcitivityContract.populateAllRepo(repos);
+                        }
+                    });
+
+
+
 
 
 
@@ -87,11 +123,7 @@ public class OkHttpExample {
             }
         });
         thread.start();
-        try {
-            thread.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+
 
         return repos;
 
